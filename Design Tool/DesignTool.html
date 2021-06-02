@@ -385,32 +385,24 @@
 		console.log("Location : " + location);
 		modeclick = null;
 		ueArrival = location;
-		if(markerIcon != undefined)
-			mymap.removeLayer(markerIcon);
-		var myIcon = L.icon({
-		    iconUrl: 'pedestrian.gif',
-		    iconSize: [24,30],
-			iconAnchor: [12, 30],
-		});
-		markerIcon = L.marker([uePosition.lat, uePosition.lng],
-		{
-			icon: myIcon
-		}).addTo(mymap);
-
-		if(routingMap != undefined)
-			mymap.removeLayer(routingMap);
-		routingMap = L.Routing.control({
-		  waypoints: [
-		    ueStart,
-		    ueArrival
-		  ],
-		  show: false
-		}).addTo(mymap);
 
 
-		var tab = [];
-		for(dis in this.routingMap._plan._map._layers)
-			tab.push( this.routingMap._plan._map._layers[dis]._latlng);
+		// if(routingMap != undefined)
+		// 	mymap.removeLayer(routingMap);
+		// routingMap = L.Routing.control({
+		//   waypoints: [
+		//     ueStart,
+		//     ueArrival
+		//   ],
+		//   show: false
+		// }).addTo(mymap);
+
+
+
+
+		// var tab = [];
+		// for(dis in this.routingMap._plan._map._layers)
+		// 	tab.push( this.routingMap._plan._map._layers[dis]._latlng);
 			// console.log("latlng : " + this.routingMap._plan._map._layers[dis]._latlng);
 
 		// this.routingMap._plan._map._layers[260]._latlng
@@ -424,7 +416,8 @@
 		sortAntennasUE(uePosition);
 		set3ClosestAntennas(uePosition);
 		setUEAntenna(uePosition);
-		console.log(" ");
+		setUE(uePosition);
+		console.log(uePosition);
 		// var plan = routingMap.getPlan();
 		// console.log("leaflet-interactive");
 	}
@@ -1096,6 +1089,20 @@
 				}).addTo(mymap);
 	}
 
+	function setUE(location){
+		if(markerIcon != undefined)
+			mymap.removeLayer(markerIcon);
+		var myIcon = L.icon({
+		    iconUrl: 'pedestrian.gif',
+		    iconSize: [24,30],
+			iconAnchor: [12, 30],
+		});
+		markerIcon = L.marker([uePosition.lat, uePosition.lng],
+		{
+			icon: myIcon
+		}).addTo(mymap);
+	}
+
 	function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
 	  var R = 6371; // Radius of the earth in km
 	  var dLat = deg2rad(lat2-lat1);  // deg2rad below
@@ -1137,12 +1144,23 @@
 
 	function mainLoop(){
 		// while(1){
-			sleep(1000);
-			uePosition.lat += 0.0000000000001;
-			sortAntennasUE(uePosition);
-			set3ClosestAntennas(uePosition);
-			setUEAntenna(uePosition);
-			console.log(uePosition);
+		// uePosition.lat += 0.00000000001;
+		if((ueArrival.lat-uePosition.lat) > 0.001)
+			uePosition.lat += 0.001;
+		else if ((ueArrival.lat-uePosition.lat) < -0.001)
+			uePosition.lat -= 0.001;
+
+		if((ueArrival.lng-uePosition.lng)>0.001)
+			uePosition.lng += 0.001;
+		else if ((ueArrival.lng-uePosition.lng) < -0.001)
+			uePosition.lng -= 0.001;
+
+		sortAntennasUE(uePosition);
+		set3ClosestAntennas(uePosition);
+		setUEAntenna(uePosition);
+		setUE(uePosition);
+		sleep(500);
+		console.log(uePosition);
 		// }
 	}
 
@@ -1200,6 +1218,8 @@
 				<input type="radio" name="omni" id="sect" value="sectorial" />
 				<div><label id="labelpower">Puissance rayonnée: </label></div>
 				<div> <input type="number" id="power" name="power" value="30" style="width: 98%;"></div>
+				<div><label id="antennaGain">Antenna Gain(dBm) : </label></div>
+				<div> <input type="number" id="inputAntennaGain" name="inputAntennaGain" value="20" style="width: 98%;"></div>
 				<div><label id="labeltilt">Tilt : </label></div>
 				<div> <input type="number" id="tilt" name="tilt" value="30" style="width: 98%;"></div>
 				<div><label id="labelazimut">Azimut : </label></div>
@@ -1219,6 +1239,7 @@
 				<div><label id="labelUE">User Equipment <br></label></div>
 			 	<div> <label id="labelAntennaCo" style="width: 30%;">Antenna connected : </label><input type="text" id="antennaCo" name="antennaCo" value="None" style="width: 30%;" disabled=""></div>
 			 	<div> <label id="labelReceivedPower" style="width: 30%;">Received power(?) : </label><input type="number" id="receivedPower" name="receivedPower" value="0" style="width: 30%;" disabled=""></div>
+			 	<div> <label id="labelGainUE" style="width: 30%;">UE Gain(dBm) : </label><input type="number" id="gainUE" name="gainUE" value="15" style="width: 30%;"></div>
 		 		<div><br><label id="antenna1">Antenna 1 : <br></label></div>
 			 	<div> <label id="labelAntenna1Type" style="width: 30%;">Antenna type : </label></div>
 			 	<div> <label id="labelAntenna1Freq" style="width: 30%;">Antenna frequency : </label></div>
