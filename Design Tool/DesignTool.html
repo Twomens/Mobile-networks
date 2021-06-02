@@ -168,11 +168,14 @@
 	var start;
 
 	var ueStart, ueArrival;
-	var uePosition;
-	var uePathRegistered = [];
-	var selectedAntennaCircle; 
-	var routingMap;
-	var markerIcon;
+	var markerUeStart, markerUeArrival;
+	var uePosition; // User Equipment current position (while moving)
+	var uePathRegistered = []; // should be the gps path.. :(
+	var selectedAntennaCircle;  // marker corresponding to the paired antenna
+	var routingMap; // gps object that generate the request 
+	var markerIcon; // pedestrian gif
+	var toggle = 0; // correspond to the running state of the simu (0 = not running 1 = running)
+	var intervalID; // waitong time before sleeping between two ticks
 
 	//action after the selection of the south-east corner of the covering area
 	function placeCorner(location) {
@@ -374,9 +377,10 @@
 	function placeUE(location){
 		console.log("Placing Starting point");
 		console.log("Location : " + location);
-		ueStart = location;
+		ueStart = {location};
 		uePosition = location;
-		modeclick = 5;				
+		modeclick = 5;
+		markerUeStart = L.marker([ueStart.location.lat,ueStart.location.lng]).addTo(mymap);		
 
 	}
 
@@ -385,7 +389,14 @@
 		console.log("Location : " + location);
 		modeclick = null;
 		ueArrival = location;
+		markerUeArrival = L.marker(ueArrival).addTo(mymap);
 
+
+		// sortAntennasUE(uePosition);
+		// set3ClosestAntennas(uePosition);
+		// setUEAntenna(uePosition);
+		// setUE(uePosition);
+		console.log(uePosition);
 
 		// if(routingMap != undefined)
 		// 	mymap.removeLayer(routingMap);
@@ -406,18 +417,6 @@
 			// console.log("latlng : " + this.routingMap._plan._map._layers[dis]._latlng);
 
 		// this.routingMap._plan._map._layers[260]._latlng
-
-
-
-
-
-
-
-		sortAntennasUE(uePosition);
-		set3ClosestAntennas(uePosition);
-		setUEAntenna(uePosition);
-		setUE(uePosition);
-		console.log(uePosition);
 		// var plan = routingMap.getPlan();
 		// console.log("leaflet-interactive");
 	}
@@ -1151,29 +1150,47 @@
 	}
 	function onMapDbClick(e) {
 		if(modeclick==3) {modeclick=2;placeBat2(e.latlng);}
-	}
-	//google.maps.event.addDomListener(window, 'load', initialize);
-
+	} 
 	function mainLoop(){
-		// while(1){
-		// uePosition.lat += 0.00000000001;
-		if((ueArrival.lat-uePosition.lat) > 0.001)
-			uePosition.lat += 0.001;
-		else if ((ueArrival.lat-uePosition.lat) < -0.001)
-			uePosition.lat -= 0.001;
+		if(uePosition == undefined){
+			alert("You have not selected a UE path");
+			return
+		}
+		if(toggle == 0){
+			console.log("Start");
+			toggle = 1;
+			intervalID = setInterval(function(){loop();}, 200);
+		}else if(toggle == 1){
+			console.log("Stop");
+			toggle = 0;
+			clearInterval(intervalID);
+		}
+	}
 
-		if((ueArrival.lng-uePosition.lng)>0.001)
-			uePosition.lng += 0.001;
-		else if ((ueArrival.lng-uePosition.lng) < -0.001)
-			uePosition.lng -= 0.001;
+	function loop(){
+		if((ueArrival.lat-uePosition.lat) > 0.0001)
+			uePosition.lat += 0.0001;
+		else if ((ueArrival.lat-uePosition.lat) < -0.0001)
+			uePosition.lat -= 0.0001;
+
+		if((ueArrival.lng-uePosition.lng)>0.0001)
+			uePosition.lng += 0.0001;
+		else if ((ueArrival.lng-uePosition.lng) < -0.0001)
+			uePosition.lng -= 0.0001;
+
+		if( ((ueArrival.lng-uePosition.lng) < 0.0001) && ((ueArrival.lng-uePosition.lng) > -0.0001) &&
+			((ueArrival.lat-uePosition.lat) < 0.0001) && ((ueArrival.lat-uePosition.lat) > -0.0001)){
+			alert("You arrived");
+			toggle = 0;
+			clearInterval(intervalID);
+		}
 
 		sortAntennasUE(uePosition);
 		set3ClosestAntennas(uePosition);
 		setUEAntenna(uePosition);
 		setUE(uePosition);
-		sleep(500);
-		console.log(uePosition);
-		// }
+		console.log("New position : " + uePosition);
+		// sleep(500);
 	}
 
 	function sleep(milliseconds) {
