@@ -1079,9 +1079,21 @@
 
 		if(selectedAntennaCircle != undefined)
 			mymap.removeLayer(selectedAntennaCircle);
+		
+		var power_received;
+		var selected_antenna_index;
+		for(var i = 0;i < antennas.length; i++){
+			tmp = antennas[i].power + document.getElementById('gainUE').value + document.getElementById('inputAntennaGain').value - (32.44 + 20*Math.log(document.getElementById('frequencySpectrum').value) + 20*Math.log(getDistanceFromLatLonInKm(antennas[i].location.lat,antennas[i].location.lng,uePosition.lat,uePosition.lng)));
+			console.log(" power received from antenna " + i + " : " + power_received);
+			if (tmp > power_received){
+				power_received = tmp;
+				selected_antenna_index = i;
+			}
+		}
+		
 
 		// antennas should be sort before with the function sortAntennasUE
-		selectedAntennaCircle = L.circle([antennas[0].location.lat, antennas[0].location.lng], {
+		selectedAntennaCircle = L.circle([antennas[selected_antenna_index].location.lat, antennas[selected_antenna_index].location.lng], {
 				color: 'green',
 				fillColor: '#f03',
 				fillOpacity: 0.5,
