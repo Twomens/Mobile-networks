@@ -176,6 +176,7 @@
 	var markerIcon; // pedestrian gif
 	var toggle = 0; // correspond to the running state of the simu (0 = not running 1 = running)
 	var intervalID; // waitong time before sleeping between two ticks
+	var coefPathA, coefPathB // path coefficient for the UE to go to one point to another
 
 	//action after the selection of the south-east corner of the covering area
 	function placeCorner(location) {
@@ -391,18 +392,21 @@
 		ueArrival = location;
 		markerUeArrival = L.marker(ueArrival).addTo(mymap);
 
+		coefPathA = (ueArrival.lat - ueStart.location.lat) / (ueArrival.lng - ueStart.location.lng);
+		coefPathB = ueStart.location.lat - coefPathA * ueStart.location.lng;
 
 		// sortAntennasUE(uePosition);
 		// set3ClosestAntennas(uePosition);
 		// setUEAntenna(uePosition);
 		// setUE(uePosition);
-		console.log(uePosition);
+		console.log(ueStart);
+		console.log(ueArrival);
 
 		// if(routingMap != undefined)
 		// 	mymap.removeLayer(routingMap);
 		// routingMap = L.Routing.control({
 		//   waypoints: [
-		//     ueStart,
+		//     uePosition,
 		//     ueArrival
 		//   ],
 		//   show: false
@@ -1159,6 +1163,7 @@
 		if(toggle == 0){
 			console.log("Start");
 			toggle = 1;
+			coefPath = (ueArrival.lat - ueStart.lat) / (ueArrival.lng - ueStart.lng); // coef of the affine func (representing the UE path)
 			intervalID = setInterval(function(){loop();}, 200);
 		}else if(toggle == 1){
 			console.log("Stop");
@@ -1168,6 +1173,27 @@
 	}
 
 	function loop(){
+		var step = 1;
+		var aSecDeg = uePosition.lng * uePosition.lng + 1; 
+		var bSecDeg = -2 * uePosition.lng -2 * coefPathA * uePosition.lat; 
+		var cSecDeg = uePosition.lng * uePosition.lng + uePosition.lat * uePosition.lat - step;
+		var x2 = (bSecDeg + Math.sqrt(bSecDeg*bSecDeg - 4*aSecDeg*cSecDeg)) / (2*aSecDeg); 
+		var y2 = coefPathA * x2 + coefPathB;
+
+		console.log("aSecDeg : " + aSecDeg);
+		console.log("bSecDeg : " + bSecDeg);
+		console.log("cSecDeg : " + cSecDeg);
+
+
+		console.log("x2+ : " + x2);
+		console.log("y2+ : " + y2);
+
+		x2 = (bSecDeg - Math.sqrt(bSecDeg*bSecDeg - 4*aSecDeg*cSecDeg)) / (2*aSecDeg); 
+		y2 = coefPathA * x2 + coefPathB;
+		console.log("x2- : " + x2);
+		console.log("y2- : " + y2);
+
+
 		if((ueArrival.lat-uePosition.lat) > 0.0001)
 			uePosition.lat += 0.0001;
 		else if ((ueArrival.lat-uePosition.lat) < -0.0001)
