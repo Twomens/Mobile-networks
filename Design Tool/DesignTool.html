@@ -1095,17 +1095,17 @@
 		if(antennas.length >= 1){
 			document.getElementById('labelAntenna1Type').innerHTML="Antenna type : " ;
 			document.getElementById('labelAntenna1Freq').innerHTML="Antenna frequency : ";
-			document.getElementById('labelAntenna1Pow').innerHTML="Antenna power : " + antennas[0].power + "dB?";
+			document.getElementById('labelAntenna1Pow').innerHTML="Antenna power : " + antennas[0].power + "dB";
 		}
 		if(antennas.length >= 2){
 			document.getElementById('labelAntenna2Type').innerHTML="Antenna type : ";
 			document.getElementById('labelAntenna2Freq').innerHTML="Antenna frequency : ";
-			document.getElementById('labelAntenna2Pow').innerHTML="Antenna power : " + antennas[1].power + "dB?";
+			document.getElementById('labelAntenna2Pow').innerHTML="Antenna power : " + antennas[1].power + "dB";
 		}
 		if(antennas.length >= 3){
 			document.getElementById('labelAntenna3Type').innerHTML="Antenna type : ";
 			document.getElementById('labelAntenna3Freq').innerHTML="Antenna frequency : ";
-			document.getElementById('labelAntenna3Pow').innerHTML="Antenna power : " + antennas[2].power + "dB?";
+			document.getElementById('labelAntenna3Pow').innerHTML="Antenna power : " + antennas[2].power + "dB";
 		}
 		console.log("antennas.length : " + antennas.length); 
 
@@ -1144,6 +1144,7 @@
 					}).addTo(mymap);
 		}
 		document.getElementById('receivedPower').value = power_received;
+		document.getElementById('antennaCo').value = selected_antenna_index;
 	}
 
 	function setUE(location){
