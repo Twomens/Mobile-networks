@@ -462,6 +462,7 @@
 		else if(document.getElementById('methode').value=="2") propagationBull();
 		else if(document.getElementById('methode').value=="8") propagationCostHata();
 		else if(document.getElementById('methode').value=="9") propagationWalfisch();
+		else if(document.getElementById('methode').value=="11") propagationFreeSpace();
 		document.getElementById('cartepower').disabled='';
 		document.getElementById('carteinterference').disabled='';
 		document.getElementById('cartehandover').disabled='';
@@ -689,6 +690,7 @@
 					}
 				}
 				power[a][ipoint][jpoint]=antennas[a].power-Loss;
+				
 			}
 		}
 		document.getElementById('cartepower').enabled='';
@@ -833,6 +835,39 @@
 		}
 		document.getElementById('cartepower').enabled='';
 	}
+
+	function propagationFreeSpace(){
+		for(a=0;a<nbantennas;a++){
+			antennaLocation=antennas[a].location;
+			point=L.latLng(antennaLocation.lat, antennaLocation.lng);
+			iant=Math.floor((antennaLocation.lat-southCorner.lat)/latBin);
+			jant=Math.floor((antennaLocation.lng-southCorner.lng)/lngBin);
+			if(-200<-iant) iinf=-iant;else iinf=-200;
+			if(-200<-jant) jinf=-jant;else jinf=-200;
+			if(200>pdm*blockHeight -iant) isup=pdm*blockHeight -iant;else isup=200;
+			if(200>pdm*blockWidth -jant) jsup=pdm*blockWidth -jant;else jsup=200;
+			for(var jdist=jinf;jdist<=jsup;jdist++)
+			for(var idist=iinf;idist<=isup;idist++)
+			{
+				ipoint=iant+idist;					//coordonnées en maille d'un point de reception	
+				jpoint=jant+jdist;	
+				if(ipoint<0 || jpoint<0 || ipoint >= pdm*blockHeight  || jpoint>=pdm*blockWidth ) continue;
+				point.lat=antennaLocation.lat+idist*latBin
+				point.lng=antennaLocation.lng+jdist*lngBin;
+				d=L.GeometryUtil.length([antennaLocation, point]);
+				if(idist==0 && jdist==0) { 	//si c'est la position de l'antenne alors ignorer
+					Loss=0;
+				}
+				else{
+					Loss=32.44 + 20*Math.log(parseInt(document.getElementById('frequencySpectrum').value)) + 20*Math.log(d);
+				}
+			
+				power[a][ipoint][jpoint] = antennas[a].power + parseInt(document.getElementById('gainUE').value) + parseInt(document.getElementById('inputAntennaGain').value) - Loss + 100;
+			}
+		}
+		document.getElementById('cartepower').enabled='';
+	}
+	
 	function vider() {
 		while(bins.length){
 				bins.pop().remove();
@@ -1077,31 +1112,38 @@
 	}
 
 	function setUEAntenna(location){
-		// faire model de selection pour l'instant ici pour l'instant on se connecte à la + proche
+		// First selection of antenna
 		if(antennas.length < 1) return;
 
 		if(selectedAntennaCircle != undefined)
 			mymap.removeLayer(selectedAntennaCircle);
 		
-		var power_received;
-		var selected_antenna_index;
+		var power_received=-200;
+		var selected_antenna_index=-1;
+		var tmp = 0;
+
+		// selection of the antenna in function of the received power from each antenna
+		point=L.latLng(uePosition.lat,uePosition.lng);
+		iue=Math.floor((uePosition.lat-southCorner.lat)/latBin);
+		jue=Math.floor((uePosition.lng-southCorner.lng)/lngBin);if(-200<-iant) iinf=-iant;else iinf=-200;
 		for(var i = 0;i < antennas.length; i++){
-			tmp = antennas[i].power + document.getElementById('gainUE').value + document.getElementById('inputAntennaGain').value - (32.44 + 20*Math.log(document.getElementById('frequencySpectrum').value) + 20*Math.log(getDistanceFromLatLonInKm(antennas[i].location.lat,antennas[i].location.lng,uePosition.lat,uePosition.lng)));
-			console.log(" power received from antenna " + i + " : " + power_received);
-			if (tmp > power_received){
+			tmp = power[i][iue][jue];
+			if (tmp > power_received && tmp > -140){
 				power_received = tmp;
 				selected_antenna_index = i;
 			}
+			tmp = 0;
 		}
 		
-
-		// antennas should be sort before with the function sortAntennasUE
-		selectedAntennaCircle = L.circle([antennas[selected_antenna_index].location.lat, antennas[selected_antenna_index].location.lng], {
-				color: 'green',
-				fillColor: '#f03',
-				fillOpacity: 0.5,
-				radius: 10
-				}).addTo(mymap);
+		if(selected_antenna_index >= 0){
+			selectedAntennaCircle = L.circle([antennas[selected_antenna_index].location.lat, antennas[selected_antenna_index].location.lng], {
+					color: 'green', // the chosen antenna will be green on the map
+					fillColor: '#f03',
+					fillOpacity: 0.5,
+					radius: 10
+					}).addTo(mymap);
+		}
+		document.getElementById('receivedPower').value = power_received;
 	}
 
 	function setUE(location){
@@ -1136,13 +1178,13 @@
 	  return deg * (Math.PI/180)
 	}
 
-	function sortAntennasUE(uePosition){
+	/*function sortAntennasUE(uePosition){
 		antennas.sort((a,b) => (
 			getDistanceFromLatLonInKm(a.location.lat,a.location.lng,uePosition.lat,uePosition.lng) 
 			> 
 			getDistanceFromLatLonInKm(b.location.lat,b.location.lng,uePosition.lat,uePosition.lng) 
 		) ? 1 : -1);
-	}
+	}*/
 
 	function onMapClick(e) {
 		//alert("You clicked the map at " + e.latlng);
@@ -1211,7 +1253,7 @@
 			clearInterval(intervalID);
 		}
 
-		sortAntennasUE(uePosition);
+		//sortAntennasUE(uePosition);
 		set3ClosestAntennas(uePosition);
 		setUEAntenna(uePosition);
 		setUE(uePosition);
@@ -1237,20 +1279,20 @@
 		<div id="sidebar">
 			<div><label id="labeltech">Technologie radio : </label></div>
 			<select name="Combobox1" size="1" id="techno" style="width: 98%;">
-				<option selected value="1">GSM</option>
-				<option value="2">UMTS</option>
+				<option value="1">GSM</option>
+				<option selected value="2">UMTS</option>
 				<option value="3">LTE</option>
 				<option value="4">TDF</option>
 				<option value="5">HSDPA</option>
 				<option value="6">WiMAX</option>
 			</select>
 			<div><label id="labelfrequencySpectrum"  style="width: 50%;">Bande(Mhz) : </label><input type="number" id="frequencySpectrum" name="frequencySpectrum" value="1800" align="right" style="width: 50%;"></div>
-			<div><label id="labelqualityThreshold" style="width: 50%;">Seuil (Db) : </label><input type="number" id="qualityThreshold" name="qualityThreshold" value="-100" style="width: 50%;"></div>
+			<div><label id="labelqualityThreshold" style="width: 50%;">Seuil (Db) : </label><input type="number" id="qualityThreshold" name="qualityThreshold" value="-140" style="width: 50%;"></div>
 			<div> <label id="labelblockHeight " style="width: 30%;">Hauteur de la zone (200m) : </label><input type="number" id="blockHeight " name="blockHeight " value="10" style="width: 20%;"></div>
 			<div> <label id="labelblockWidth " style="width: 30%;">Largeur de la zone (200m) : </label><input type="number" id="blockWidth " name="blockWidth " value="10" style="width: 20%;"></div>
 			<div><label id="labelmodele">Modèle de propagation : </label></div>
 		  <select name="Combobox1" size="1" id="methode" style="width: 98%;" onchange="choixenv()">
-			<option selected value="1">Single Knife Edge (rural)</option>
+			<option value="1">Single Knife Edge (rural)</option>
 			<option value="2">Bullington (rural)</option>
 			<option value="3">Epstein Method</option>
 			<option value="4">Deygout (rural)</option>
@@ -1260,6 +1302,7 @@
 			<option value="8">COST231-Hata (rural,urban)</option>
 			<option value="9">Walfisch-Ikegami(urban)</option>
 			<option value="10">Stanford University Interim</option>
+			<option selected value="11">Free Space</option>
 		  </select>
 		  <div> <input type="button" id="cartepower" value="Cartographie de power" onclick="cartepower()" disabled='disabled' style="width: 98%;"/></div>
 		  <div> <input type="button" id="carteinterference" value="Cartographie des C/I" onclick="carteinterference()" disabled='disabled' style="width: 98%;"/></div>
@@ -1293,7 +1336,7 @@
 		 	<div id="antennaListUE" style = "display:none;">
 				<div><label id="labelUE">User Equipment <br></label></div>
 			 	<div> <label id="labelAntennaCo" style="width: 30%;">Antenna connected : </label><input type="text" id="antennaCo" name="antennaCo" value="None" style="width: 30%;" disabled=""></div>
-			 	<div> <label id="labelReceivedPower" style="width: 30%;">Received power(?) : </label><input type="number" id="receivedPower" name="receivedPower" value="0" style="width: 30%;" disabled=""></div>
+			 	<div> <label id="labelReceivedPower" style="width: 30%;">Received power : </label><input type="number" id="receivedPower" name="receivedPower" value="0" style="width: 30%;" disabled=""></div>
 			 	<div> <label id="labelGainUE" style="width: 30%;">UE Gain(dBm) : </label><input type="number" id="gainUE" name="gainUE" value="15" style="width: 30%;"></div>
 		 		<div><br><label id="antenna1">Antenna 1 : <br></label></div>
 			 	<div> <label id="labelAntenna1Type" style="width: 30%;">Antenna type : </label></div>
