@@ -103,7 +103,7 @@
 	var angleindex;
 
 	var firstpropag=true //the relief table should be normalized at the beginning
-	function AntennaConstructor(location, frequency, omni, tilt, azimut, pow)
+	function AntennaConstructor(location, frequency, omni, tilt, azimut, pow, currentPower)
 	{
 		this.location=location; //position of the antenna
 		this.omni=omni;			//omni or not
@@ -111,8 +111,10 @@
 		this.power=pow;		//power in Db
 		this.tilt=tilt;			//tilt in radian
 		this.frequency=frequency;	//frequency in MHz
+		this.currentPower		//Power recieved by UE
 	}
 	var antennas=[];     	//set of antennas
+	var antennas2=[];
 	var nbantennas=0;     	//number of antennas
 	var nodeB=0;
 	var bins=[];			
@@ -134,6 +136,7 @@
 	var modeclick=0; // = 4 = placer un UE
 	
 	//local variables
+	var currentPower;
 	var omni;
 	var i,j;
 	var cst1;
@@ -331,6 +334,7 @@
 			antenne.power = parseInt(objpower.value);
 			objfrequency=document.getElementById('frequency');
 			antenne.frequency = parseInt(objfrequency.value);
+			antenne.currentPower = 0;
 		}
 		//it is a restored antenna from stored data 
 		else {
@@ -1097,8 +1101,8 @@
 	}
 
 	function set3ClosestAntennas(uePosition){
-
-		
+		var save = [...antennas];
+		antennas.sort(function(a,b){return a.currentPower - b.currentPower});
 		if(antennas.length >= 1){
 			document.getElementById('labelAntenna1Type').innerHTML="Antenna type : " ;
 			document.getElementById('labelAntenna1Freq').innerHTML="Antenna frequency : " + antennas[0].frequency + "MHz";
@@ -1116,6 +1120,7 @@
 		}
 		console.log("antennas.length : " + antennas.length); 
 
+		antennas = [...save];
 	}
 
 	function setUEAntenna(location){
@@ -1135,6 +1140,7 @@
 		jue=Math.floor((uePosition.lng-southCorner.lng)/lngBin);if(-200<-iant) iinf=-iant;else iinf=-200;
 		for(var i = 0;i < antennas.length; i++){
 			tmp = power[i][iue][jue];
+			antennas[i].currentPower=power[i][iue][jue];
 			if (tmp > power_received && tmp > -140){
 				power_received = tmp;
 				selected_antenna_index = i;
