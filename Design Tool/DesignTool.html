@@ -103,7 +103,7 @@
 	var angleindex;
 
 	var firstpropag=true //the relief table should be normalized at the beginning
-	function AntennaConstructor(location, frequency, omni, tilt, azimut, pow, currentPower)
+	function AntennaConstructor(location, frequency, omni, tilt, azimut, pow, currentPower, nodeB)
 	{
 		this.location=location; //position of the antenna
 		this.omni=omni;			//omni or not
@@ -112,6 +112,7 @@
 		this.tilt=tilt;			//tilt in radian
 		this.frequency=frequency;	//frequency in MHz
 		this.currentPower		//Power recieved by UE
+		this.nodeB;			//NodeB of the antenna
 	}
 	var antennas=[];     	//set of antennas
 	var antennas2=[];
@@ -307,7 +308,7 @@
 	}
 
 	var markerantenna=[];
-	function placeAntennaConstructor(location,frequency,pow,type,tilt,azimut) {
+	function placeAntennaConstructor(location,frequency,pow,type,tilt,azimut,currentPower,nodeB) {
 		antenne=new AntennaConstructor(location,true);
 
 		//if the antenna is added by a mousse click
@@ -334,6 +335,8 @@
 			antenne.power = parseInt(objpower.value);
 			objfrequency=document.getElementById('frequency');
 			antenne.frequency = parseInt(objfrequency.value);
+			objnodeB=document.getElementById('nodeB');
+			antenne.nodeB = parseInt(objnodeB.value);
 			antenne.currentPower = 0;
 		}
 		//it is a restored antenna from stored data 
@@ -345,6 +348,8 @@
 				antenne.tilt=tilt;
 				antenne.power=pow;
 				antenne.frequency=frequency;
+				antenna.currentPower=currentPower;
+				antenne.nodeB=nodeB;
 			}
 			else{
 				omni=false;
@@ -353,6 +358,8 @@
 				antenne.tilt=tilt;
 				antenne.power=pow;
 				antenne.frequency=frequency;
+				antenna.currentPower=currentPower;
+				antenne.nodeB=nodeB;
 			}
 		}
 		//display the antenna 
