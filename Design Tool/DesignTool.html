@@ -103,13 +103,14 @@
 	var angleindex;
 
 	var firstpropag=true //the relief table should be normalized at the beginning
-	function AntennaConstructor(location, omni, tilt, azimut, pow)
+	function AntennaConstructor(location, frequency, omni, tilt, azimut, pow)
 	{
 		this.location=location; //position of the antenna
 		this.omni=omni;			//omni or not
 		this.azimut=azimut;		//azimuth in radian
 		this.power=pow;		//power in Db
 		this.tilt=tilt;			//tilt in radian
+		this.frequency=frequency;	//frequency in MHz
 	}
 	var antennas=[];     	//set of antennas
 	var nbantennas=0;     	//number of antennas
@@ -303,7 +304,7 @@
 	}
 
 	var markerantenna=[];
-	function placeAntennaConstructor(location,pow,type,tilt,azimut) {
+	function placeAntennaConstructor(location,frequency,pow,type,tilt,azimut) {
 		antenne=new AntennaConstructor(location,true);
 
 		//if the antenna is added by a mousse click
@@ -328,6 +329,8 @@
 			}
 			objpower=document.getElementById('power');
 			antenne.power = parseInt(objpower.value);
+			objfrequency=document.getElementById('frequency');
+			antenne.frequency = parseInt(objfrequency.value);
 		}
 		//it is a restored antenna from stored data 
 		else {
@@ -337,6 +340,7 @@
 				antenne.azimut=-1;
 				antenne.tilt=tilt;
 				antenne.power=pow;
+				antenne.frequency=frequency;
 			}
 			else{
 				omni=false;
@@ -344,6 +348,7 @@
 				antenne.azimut=azimut;
 				antenne.tilt=tilt;
 				antenne.power=pow;
+				antenne.frequency=frequency;
 			}
 		}
 		//display the antenna 
@@ -860,7 +865,7 @@
 					Loss=0;
 				}
 				else{
-					Loss=32.44 + 20*Math.log(parseInt(document.getElementById('frequence1').value)) + 20*Math.log(d);
+					Loss=32.44 + 20*Math.log(parseInt(document.getElementById('frequency').value)) + 20*Math.log(d);
 				}
 			
 				power[a][ipoint][jpoint] = antennas[a].power + parseInt(document.getElementById('gainUE').value) + parseInt(document.getElementById('inputAntennaGain').value) - Loss;
@@ -1096,17 +1101,17 @@
 		
 		if(antennas.length >= 1){
 			document.getElementById('labelAntenna1Type').innerHTML="Antenna type : " ;
-			document.getElementById('labelAntenna1Freq').innerHTML="Antenna frequency : ";
+			document.getElementById('labelAntenna1Freq').innerHTML="Antenna frequency : " + antennas[0].frequency + "MHz";
 			document.getElementById('labelAntenna1Pow').innerHTML="Antenna power : " + antennas[0].power + "dB";
 		}
 		if(antennas.length >= 2){
 			document.getElementById('labelAntenna2Type').innerHTML="Antenna type : ";
-			document.getElementById('labelAntenna2Freq').innerHTML="Antenna frequency : ";
+			document.getElementById('labelAntenna2Freq').innerHTML="Antenna frequency : " + antennas[1].frequency + "MHz";
 			document.getElementById('labelAntenna2Pow').innerHTML="Antenna power : " + antennas[1].power + "dB";
 		}
 		if(antennas.length >= 3){
 			document.getElementById('labelAntenna3Type').innerHTML="Antenna type : ";
-			document.getElementById('labelAntenna3Freq').innerHTML="Antenna frequency : ";
+			document.getElementById('labelAntenna3Freq').innerHTML="Antenna frequency : " + antennas[2].frequency + "MHz";
 			document.getElementById('labelAntenna3Pow').innerHTML="Antenna power : " + antennas[2].power + "dB";
 		}
 		console.log("antennas.length : " + antennas.length); 
@@ -1326,7 +1331,7 @@
 				<div><label id="labelazimut">Azimut : </label></div>
 				<div> <input type="number" id="azimut" name="azimut" value="0" style="width: 98%;"></div>
 				<div><label id="freq1">Fréquence (MHz) : </label></div>
-				<div> <input type="number" id="frequence1" name="frequence1" value="1800" style="width: 98%;"></div>
+				<div> <input type="number" id="frequency" name="frequency" value="1800" style="width: 98%;"></div>
 				<div><label id="nodeBLabel">NodeB : </label></div>
 				<div> <input type="number" min="0" id="nodeB" name="nodeB" value="0" style="width: 98%;"></div>
 		  </div>
