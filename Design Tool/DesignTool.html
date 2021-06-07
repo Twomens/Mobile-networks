@@ -1110,6 +1110,7 @@
 	function set3ClosestAntennas(uePosition){
 		var save = [...antennas];
 		antennas.sort(function(a,b){return a.currentPower - b.currentPower});
+		antennas.reverse;
 		if(antennas.length >= 1){
 			document.getElementById('labelAntenna1Type').innerHTML="Antenna type : " ;
 			document.getElementById('labelAntenna1Freq').innerHTML="Antenna frequency : " + antennas[0].frequency + "MHz";
