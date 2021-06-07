@@ -854,7 +854,7 @@
 				if(ipoint<0 || jpoint<0 || ipoint >= pdm*blockHeight  || jpoint>=pdm*blockWidth ) continue;
 				point.lat=antennaLocation.lat+idist*latBin
 				point.lng=antennaLocation.lng+jdist*lngBin;
-				d=L.GeometryUtil.length([antennaLocation, point]);
+				d=getDistanceFromLatLonInKm(antennaLocation.lat,antennaLocation.lng,point.lat,point.lng);
 				if(idist==0 && jdist==0) { 	//si c'est la position de l'antenne alors ignorer
 					Loss=0;
 				}
@@ -862,7 +862,8 @@
 					Loss=32.44 + 20*Math.log(parseInt(document.getElementById('frequencySpectrum').value)) + 20*Math.log(d);
 				}
 			
-				power[a][ipoint][jpoint] = antennas[a].power + parseInt(document.getElementById('gainUE').value) + parseInt(document.getElementById('inputAntennaGain').value) - Loss + 100;
+				power[a][ipoint][jpoint] = antennas[a].power + parseInt(document.getElementById('gainUE').value) + parseInt(document.getElementById('inputAntennaGain').value) - Loss;
+				console.log(power[a][ipoint][jpoint]);
 			}
 		}
 		document.getElementById('cartepower').enabled='';
