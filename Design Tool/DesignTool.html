@@ -1169,7 +1169,14 @@
 	function handover(){
 		if(first==0){displaySelectedAntenna(0);first=1;return;}
 		if(selectedAntenna.location.lat != antennas[0].location.lat && selectedAntenna.location.lng != antennas[0].location.lng){
+			first=2;
 			if(selectedAntenna.frequency == antennas[0].frequency){
+				if(selectedAntenna.nodeB == antennas[0].nodeB){
+					document.getElementById('labelHandover').innerHTML="Last Handover : " + "Softer Handover";
+				}
+				else{
+					document.getElementById('labelHandover').innerHTML="Last Handover : " + "Soft Handover";
+				}
 				selectedAntennaCircle2 = L.circle([selectedAntenna.location.lat, selectedAntenna.location.lng], {
 					color: 'green', // the chosen antenna will be green on the map
 					fillColor: '#f03',
@@ -1177,12 +1184,16 @@
 					radius: 10
 					}).addTo(mymap);
 			}
+			else{
+				document.getElementById('labelHandover').innerHTML="Last Handover : " + "Hard Handover";
+			}
 			displaySelectedAntenna(0);
 
 		}
 	}
 
 	function disconnectOldAntenna(){
+		if(first!=2){return;}
 		if(softOver==3){
 			mymap.removeLayer(selectedAntennaCircle2);
 			softOver=0;
@@ -1420,6 +1431,7 @@
 			 	<div> <label id="labelAntennaCo" style="width: 30%;">Antenna connected : </label><input type="text" id="antennaCo" name="antennaCo" value="None" style="width: 30%;" disabled=""></div>
 			 	<div> <label id="labelReceivedPower" style="width: 30%;">Received power : </label><input type="number" id="receivedPower" name="receivedPower" value="0" style="width: 30%;" disabled=""></div>
 			 	<div> <label id="labelGainUE" style="width: 30%;">UE Gain(dBm) : </label><input type="number" id="gainUE" name="gainUE" value="15" style="width: 30%;"></div>
+			 	<div> <label id="labelHandover" style="width: 30%;">Last Handover : </label></div>
 		 		<div><br><label id="antenna1">Antenna 1 : <br></label></div>
 			 	<div> <label id="labelAntenna1Type" style="width: 30%;">Antenna type : </label></div>
 			 	<div> <label id="labelAntenna1Freq" style="width: 30%;">Antenna frequency : </label></div>
