@@ -115,9 +115,19 @@
 		this.nodeB;			//NodeB of the antenna
 	}
 	var antennas=[];     	//set of antennas
-	var antennas2=[];
+
+
+
+
+	//Handover
+	var selectedAntenna;	//Currently selected antenna
+	var softOver=0;		//counter to disconnect old antenna after soft handover
 	var nbantennas=0;     	//number of antennas
-	var nodeB=0;
+	var nodeB=0;		//NodeB of antenna
+	var first=0;		//first antenna selection
+
+
+
 	var bins=[];			
 	var blocs=[];
 	var axes = [];  //set of roads - not yet implemented
@@ -177,7 +187,8 @@
 	var markerUeStart, markerUeArrival;
 	var uePosition; // User Equipment current position (while moving)
 	var uePathRegistered = []; // should be the gps path.. :(
-	var selectedAntennaCircle;  // marker corresponding to the paired antenna
+	var selectedAntennaCircle;  // marker corresponding to the 1st paired antenna
+	var selectedAntennaCircle;  // marker corresponding to the 2nd paired antenna if exists
 	var routingMap; // gps object that generate the request 
 	var markerIcon; // pedestrian gif
 	var toggle = 0; // correspond to the running state of the simu (0 = not running 1 = running)
@@ -1107,6 +1118,26 @@
 		}
 	}
 
+	const deepCopyFunction = (inObject) => {
+		let outObject, value, key
+
+		if (typeof inObject !== "object" || inObject === null) {
+			return inObject // Return the value if inObject is not an object
+		}
+
+		// Create an array or object to hold the values
+		outObject = Array.isArray(inObject) ? [] : {}
+
+		for (key in inObject) {
+			value = inObject[key]
+
+			// Recursively (deep) copy for nested objects, including arrays
+			outObject[key] = deepCopyFunction(value)
+		}
+		
+		return outObject
+	}
+
 	function set3ClosestAntennas(uePosition){
 		var save = [...antennas];
 		antennas.sort(function(a,b){return a.currentPower - b.currentPower});
@@ -1130,22 +1161,48 @@
 			document.getElementById('labelAntenna3NodeB').innerHTML="Antenna nodeB : " + antennas[2].nodeB;
 		}
 		console.log("antennas.length : " + antennas.length); 
-
-		displaySelectedAntenna();
+	
+		handover();
 		antennas = [...save];
 	}
 
-	function displaySelectedAntenna(){
+	function handover(){
+		if(first==0){displaySelectedAntenna(0);first=1;return;}
+		if(selectedAntenna.location.lat != antennas[0].location.lat && selectedAntenna.location.lng != antennas[0].location.lng){
+			if(selectedAntenna.frequency == antennas[0].frequency){
+				selectedAntennaCircle2 = L.circle([selectedAntenna.location.lat, selectedAntenna.location.lng], {
+					color: 'green', // the chosen antenna will be green on the map
+					fillColor: '#f03',
+					fillOpacity: 0.5,
+					radius: 10
+					}).addTo(mymap);
+			}
+			displaySelectedAntenna(0);
+
+		}
+	}
+
+	function disconnectOldAntenna(){
+		if(softOver==3){
+			mymap.removeLayer(selectedAntennaCircle2);
+			softOver=0;
+		}
+		softOver++;
+	}
+
+	function displaySelectedAntenna(selectedAntennaIndex){
 		if(selectedAntennaCircle != undefined)
 			mymap.removeLayer(selectedAntennaCircle);
 		if(antennas.length >= 0){
-			selectedAntennaCircle = L.circle([antennas[0].location.lat, antennas[0].location.lng], {
+			selectedAntennaCircle = L.circle([antennas[selectedAntennaIndex].location.lat, antennas[selectedAntennaIndex].location.lng], {
 					color: 'green', // the chosen antenna will be green on the map
 					fillColor: '#f03',
 					fillOpacity: 0.5,
 					radius: 10
 					}).addTo(mymap);
 		}
+		selectedAntenna = deepCopyFunction(antennas[selectedAntennaIndex]);
+
 	}
 
 	function setUEAntenna(location){
@@ -1285,6 +1342,7 @@
 		set3ClosestAntennas(uePosition);
 		setUEAntenna(uePosition);
 		setUE(uePosition);
+		disconnectOldAntenna();
 		console.log("New position : " + uePosition);
 		// sleep(500);
 	}
