@@ -1110,21 +1110,24 @@
 	function set3ClosestAntennas(uePosition){
 		var save = [...antennas];
 		antennas.sort(function(a,b){return a.currentPower - b.currentPower});
-		antennas.reverse;
+		antennas.reverse();
 		if(antennas.length >= 1){
 			document.getElementById('labelAntenna1Type').innerHTML="Antenna type : " ;
 			document.getElementById('labelAntenna1Freq').innerHTML="Antenna frequency : " + antennas[0].frequency + "MHz";
 			document.getElementById('labelAntenna1Pow').innerHTML="Antenna power : " + antennas[0].power + "dB";
+			document.getElementById('labelAntenna1NodeB').innerHTML="Antenna nodeB : " + antennas[0].nodeB;
 		}
 		if(antennas.length >= 2){
 			document.getElementById('labelAntenna2Type').innerHTML="Antenna type : ";
 			document.getElementById('labelAntenna2Freq').innerHTML="Antenna frequency : " + antennas[1].frequency + "MHz";
 			document.getElementById('labelAntenna2Pow').innerHTML="Antenna power : " + antennas[1].power + "dB";
+			document.getElementById('labelAntenna2NodeB').innerHTML="Antenna nodeB : " + antennas[1].nodeB;
 		}
 		if(antennas.length >= 3){
 			document.getElementById('labelAntenna3Type').innerHTML="Antenna type : ";
 			document.getElementById('labelAntenna3Freq').innerHTML="Antenna frequency : " + antennas[2].frequency + "MHz";
 			document.getElementById('labelAntenna3Pow').innerHTML="Antenna power : " + antennas[2].power + "dB";
+			document.getElementById('labelAntenna3NodeB').innerHTML="Antenna nodeB : " + antennas[2].nodeB;
 		}
 		console.log("antennas.length : " + antennas.length); 
 
@@ -1360,16 +1363,19 @@
 			 	<div> <label id="labelAntenna1Type" style="width: 30%;">Antenna type : </label></div>
 			 	<div> <label id="labelAntenna1Freq" style="width: 30%;">Antenna frequency : </label></div>
 			 	<div> <label id="labelAntenna1Pow" style="width: 30%;">Antenna power : </label></div>
+			 	<div> <label id="labelAntenna1NodeB" style="width: 30%;">Antenna nodeB : </label></div>
 
 		 		<div><br><label id="antenna2">Antenna 2 : <br></label></div>
 			 	<div> <label id="labelAntenna2Type" style="width: 30%;">Antenna type : </label></div>
 			 	<div> <label id="labelAntenna2Freq" style="width: 30%;">Antenna frequency : </label></div>
 			 	<div> <label id="labelAntenna2Pow" style="width: 30%;">Antenna power : </label></div>
+			 	<div> <label id="labelAntenna2NodeB" style="width: 30%;">Antenna nodeB : </label></div>
 
 		 		<div><br><label id="antenna3">Antenna 3 : <br></label></div>
 			 	<div> <label id="labelAntenna3Type" style="width: 30%;">Antenna type : </label></div>
 			 	<div> <label id="labelAntenna3Freq" style="width: 30%;">Antenna frequency : </label></div>
 			 	<div> <label id="labelAntenna3Pow" style="width: 30%;">Antenna power : </label></div>
+			 	<div> <label id="labelAntenna3NodeB" style="width: 30%;">Antenna nodeB : </label></div>
 			 	
 		 	</div>
 			
