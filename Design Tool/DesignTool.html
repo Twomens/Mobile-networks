@@ -1131,16 +1131,27 @@
 		}
 		console.log("antennas.length : " + antennas.length); 
 
+		displaySelectedAntenna();
 		antennas = [...save];
+	}
+
+	function displaySelectedAntenna(){
+		if(selectedAntennaCircle != undefined)
+			mymap.removeLayer(selectedAntennaCircle);
+		if(antennas.length >= 0){
+			selectedAntennaCircle = L.circle([antennas[0].location.lat, antennas[0].location.lng], {
+					color: 'green', // the chosen antenna will be green on the map
+					fillColor: '#f03',
+					fillOpacity: 0.5,
+					radius: 10
+					}).addTo(mymap);
+		}
 	}
 
 	function setUEAntenna(location){
 		// First selection of antenna
 		if(antennas.length < 1) return;
-
-		if(selectedAntennaCircle != undefined)
-			mymap.removeLayer(selectedAntennaCircle);
-		
+				
 		var power_received=-200;
 		var selected_antenna_index=-1;
 		var tmp = 0;
@@ -1159,14 +1170,6 @@
 			tmp = 0;
 		}
 		
-		if(selected_antenna_index >= 0){
-			selectedAntennaCircle = L.circle([antennas[selected_antenna_index].location.lat, antennas[selected_antenna_index].location.lng], {
-					color: 'green', // the chosen antenna will be green on the map
-					fillColor: '#f03',
-					fillOpacity: 0.5,
-					radius: 10
-					}).addTo(mymap);
-		}
 		document.getElementById('receivedPower').value = power_received;
 		document.getElementById('antennaCo').value = selected_antenna_index;
 	}
