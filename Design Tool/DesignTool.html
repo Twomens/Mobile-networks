@@ -1168,27 +1168,29 @@
 
 	function handover(){
 		if(first==0){displaySelectedAntenna(0);first=1;return;}
-		if(selectedAntenna.location.lat != antennas[0].location.lat && selectedAntenna.location.lng != antennas[0].location.lng){
-			first=2;
-			if(selectedAntenna.frequency == antennas[0].frequency){
-				if(selectedAntenna.nodeB == antennas[0].nodeB){
-					document.getElementById('labelHandover').innerHTML="Last Handover : " + "Softer Handover";
+		if(((selectedAntenna.power < -100) && (antennas[0].power > selectedAntenna.power)) || ( ( antennas[0].power - selectedAntenna.power ) > 10 ) || ( antennas[0].power > -12.0 ) ){
+			if(selectedAntenna.location.lat != antennas[0].location.lat && selectedAntenna.location.lng != antennas[0].location.lng){
+				first=2;
+				if(selectedAntenna.frequency == antennas[0].frequency){
+					if(selectedAntenna.nodeB == antennas[0].nodeB){
+						document.getElementById('labelHandover').innerHTML="Last Handover : " + "Softer Handover";
+					}
+					else{
+						document.getElementById('labelHandover').innerHTML="Last Handover : " + "Soft Handover";
+					}
+					selectedAntennaCircle2 = L.circle([selectedAntenna.location.lat, selectedAntenna.location.lng], {
+						color: 'green', // the chosen antenna will be green on the map
+						fillColor: '#f03',
+						fillOpacity: 0.5,
+						radius: 10
+					}).addTo(mymap);
 				}
 				else{
-					document.getElementById('labelHandover').innerHTML="Last Handover : " + "Soft Handover";
+					document.getElementById('labelHandover').innerHTML="Last Handover : " + "Hard Handover";
 				}
-				selectedAntennaCircle2 = L.circle([selectedAntenna.location.lat, selectedAntenna.location.lng], {
-					color: 'green', // the chosen antenna will be green on the map
-					fillColor: '#f03',
-					fillOpacity: 0.5,
-					radius: 10
-					}).addTo(mymap);
+				displaySelectedAntenna(0);
+	
 			}
-			else{
-				document.getElementById('labelHandover').innerHTML="Last Handover : " + "Hard Handover";
-			}
-			displaySelectedAntenna(0);
-
 		}
 	}
 
