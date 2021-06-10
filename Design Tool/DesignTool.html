@@ -1303,7 +1303,7 @@
 		if(toggle == 0){
 			console.log("Start");
 			toggle = 1;
-			coefPath = (ueArrival.lat - ueStart.lat) / (ueArrival.lng - ueStart.lng); // coef of the affine func (representing the UE path)
+			// coefPath = (ueArrival.lat - ueStart.lat) / (ueArrival.lng - ueStart.lng); // coef of the affine func (representing the UE path)
 			intervalID = setInterval(function(){loop();}, 200);
 		}else if(toggle == 1){
 			console.log("Stop");
@@ -1313,10 +1313,10 @@
 	}
 
 	function loop(){
-		var step = 1;
+		var step = 0.0001;
 		var aSecDeg = uePosition.lng * uePosition.lng + 1; 
-		var bSecDeg = -2 * uePosition.lng -2 * coefPathA * uePosition.lat; 
-		var cSecDeg = uePosition.lng * uePosition.lng + uePosition.lat * uePosition.lat - step;
+		var bSecDeg = 2* coefPathA * coefPathB -2 * uePosition.lng -2 * coefPathA * uePosition.lat; 
+		var cSecDeg = uePosition.lng * uePosition.lng - 2 *uePosition.lat * coefPathB + uePosition.lat * uePosition.lat + coefPathB - step*step;
 		var x2 = (bSecDeg + Math.sqrt(bSecDeg*bSecDeg - 4*aSecDeg*cSecDeg)) / (2*aSecDeg); 
 		var y2 = coefPathA * x2 + coefPathB;
 
@@ -1328,24 +1328,26 @@
 		console.log("x2+ : " + x2);
 		console.log("y2+ : " + y2);
 
-		x2 = (bSecDeg - Math.sqrt(bSecDeg*bSecDeg - 4*aSecDeg*cSecDeg)) / (2*aSecDeg); 
-		y2 = coefPathA * x2 + coefPathB;
-		console.log("x2- : " + x2);
-		console.log("y2- : " + y2);
+		// x2 = (bSecDeg - Math.sqrt(bSecDeg*bSecDeg - 4*aSecDeg*cSecDeg)) / (2*aSecDeg); 
+		// y2 = coefPathA * x2 + coefPathB;
+		// console.log("x2- : " + x2);
+		// console.log("y2- : " + y2);
 
 
-		if((ueArrival.lat-uePosition.lat) > 0.0001)
-			uePosition.lat += 0.0001;
-		else if ((ueArrival.lat-uePosition.lat) < -0.0001)
-			uePosition.lat -= 0.0001;
+		// if((ueArrival.lat-uePosition.lat) > 0.0001)
+		// 	uePosition.lat += 0.0001;
+		// else if ((ueArrival.lat-uePosition.lat) < -0.0001)
+		// 	uePosition.lat -= 0.0001;
 
-		if((ueArrival.lng-uePosition.lng)>0.0001)
-			uePosition.lng += 0.0001;
-		else if ((ueArrival.lng-uePosition.lng) < -0.0001)
-			uePosition.lng -= 0.0001;
+		if((ueArrival.lng-uePosition.lng)>step)
+			uePosition.lng += step;
+		else if ((ueArrival.lng-uePosition.lng) < -step)
+			uePosition.lng -= step;
 
-		if( ((ueArrival.lng-uePosition.lng) < 0.0001) && ((ueArrival.lng-uePosition.lng) > -0.0001) &&
-			((ueArrival.lat-uePosition.lat) < 0.0001) && ((ueArrival.lat-uePosition.lat) > -0.0001)){
+		uePosition.lat = coefPathA * uePosition.lng + coefPathB;
+
+		if( ((ueArrival.lng-uePosition.lng) < step) && ((ueArrival.lng-uePosition.lng) > -step) &&
+			((ueArrival.lat-uePosition.lat) < step) && ((ueArrival.lat-uePosition.lat) > -step)){
 			alert("You arrived");
 			toggle = 0;
 			clearInterval(intervalID);
@@ -1357,7 +1359,6 @@
 		setUE(uePosition);
 		disconnectOldAntenna();
 		console.log("New position : " + uePosition);
-		// sleep(500);
 	}
 
 	function sleep(milliseconds) {
