@@ -1168,7 +1168,10 @@
 
 	function handover(){
 		if(first==0){displaySelectedAntenna(0);first=1;return;}
-		if(((selectedAntenna.power < -100) && (antennas[0].power > selectedAntenna.power)) || ( ( antennas[0].power - selectedAntenna.power ) > 10 ) || ( antennas[0].power > -12.0 ) ){
+		var RSCPAntenna = document.getElementById('RSCPAntenna').value;
+		var RSCPLow = document.getElementById('RSCPLow').value;
+		var RSCPDiff = document.getElementById('RSCPDiff').value;
+		if(((selectedAntenna.power < RSCPLow) && (antennas[0].power > selectedAntenna.power)) || ( ( antennas[0].power - selectedAntenna.power ) > RSCPDiff ) || ( antennas[0].power > RSCPAntenna ) ){
 			if(selectedAntenna.location.lat != antennas[0].location.lat && selectedAntenna.location.lng != antennas[0].location.lng){
 				first=2;
 				if(selectedAntenna.frequency == antennas[0].frequency){
@@ -1437,6 +1440,12 @@
 			<option value="10">Stanford University Interim</option>
 			<option selected value="11">Free Space</option>
 		  </select>
+		  <br><br>
+		  <div><label id="handoverSettings">Paramètres du handover : </label></div>
+		  <div><label id="LabelRSCPAntenna" style="width: 30%;">RSCP Antenne la plus proche : </label><input type="number" id="RSCPAntenna" name="RSCPAntenna" value="-12" style="width: 20%;"></div>
+		  <div><label id="LabelRSCPLow" style="width: 30%;">RSCP minimum antenne : </label><input type="number" id="RSCPLow" name="RSCPLow" value="-100" style="width: 20%;"></div>
+		  <div><label id="LabelRSCPDiff" style="width: 30%;">RSCP différence : </label><input type="number" id="RSCPDiff" name="RSCPDiff" value="10" style="width: 20%;"></div>
+		  <br><br>
 		  <div> <input type="button" id="cartepower" value="Cartographie de power" onclick="cartepower()" disabled='disabled' style="width: 98%;"/></div>
 		  <div> <input type="button" id="carteinterference" value="Cartographie des C/I" onclick="carteinterference()" disabled='disabled' style="width: 98%;"/></div>
 		  <div> <input type="button" id="cartehandover" value="Cartographie de handover" onclick="cartehandover()" disabled='disabled' style="width: 98%;"/></div>
