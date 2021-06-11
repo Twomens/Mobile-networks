@@ -1313,38 +1313,71 @@
 	}
 
 	function loop(){
-		var step = 0.0001;
-		var aSecDeg = uePosition.lng * uePosition.lng + 1; 
-		var bSecDeg = 2* coefPathA * coefPathB -2 * uePosition.lng -2 * coefPathA * uePosition.lat; 
-		var cSecDeg = uePosition.lng * uePosition.lng - 2 *uePosition.lat * coefPathB + uePosition.lat * uePosition.lat + coefPathB - step*step;
-		var x2 = (bSecDeg + Math.sqrt(bSecDeg*bSecDeg - 4*aSecDeg*cSecDeg)) / (2*aSecDeg); 
-		var y2 = coefPathA * x2 + coefPathB;
+		//one of the parameters that influence speed 
+		var step = 0.0005;
 
-		console.log("aSecDeg : " + aSecDeg);
-		console.log("bSecDeg : " + bSecDeg);
-		console.log("cSecDeg : " + cSecDeg);
+		// ______legit mathematic method______speed is perfectly constant
 
+		// var aSecDeg = coefPathA * coefPathA + 1; 
+		// var bSecDeg = 2* coefPathA * coefPathB -2 * uePosition.lng -2 * coefPathA * uePosition.lat; 
+		// var cSecDeg = uePosition.lng * uePosition.lng - 2 *uePosition.lat * coefPathB + uePosition.lat * uePosition.lat + coefPathB - step*step;
+		// var x2 = (-bSecDeg + Math.sqrt(bSecDeg*bSecDeg - 4*aSecDeg*cSecDeg)) / (2*aSecDeg); 
+		// var y2 = coefPathA * x2 + coefPathB;
 
-		console.log("x2+ : " + x2);
-		console.log("y2+ : " + y2);
+		// console.log("aSecDeg : " + aSecDeg);
+		// console.log("bSecDeg : " + bSecDeg);
+		// console.log("cSecDeg : " + cSecDeg);
+
+		// console.log("x2+ : " + x2);
+		// console.log("y2+ : " + y2);
 
 		// x2 = (bSecDeg - Math.sqrt(bSecDeg*bSecDeg - 4*aSecDeg*cSecDeg)) / (2*aSecDeg); 
 		// y2 = coefPathA * x2 + coefPathB;
+
 		// console.log("x2- : " + x2);
 		// console.log("y2- : " + y2);
 
+		// ______IT method______5% speed precision
+		var latX = uePosition.lng;
+		var latY;
+		if((ueArrival.lng-uePosition.lng)>=0)
+			latX += (step/20);
+		else if ((ueArrival.lng-uePosition.lng) < 0)
+			latX -= (step/20);
+		latY = coefPathA * latX + coefPathB; 
 
-		// if((ueArrival.lat-uePosition.lat) > 0.0001)
-		// 	uePosition.lat += 0.0001;
-		// else if ((ueArrival.lat-uePosition.lat) < -0.0001)
-		// 	uePosition.lat -= 0.0001;
+		if(latX>=uePosition.lng && latY>=uePosition.lat){
+			while(Math.sqrt((latX-uePosition.lng)*(latX-uePosition.lng) + (latY-uePosition.lat) *(latY-uePosition.lat)) < step){
+				latX += (step/20);
+				latY = coefPathA * latX + coefPathB; 
+			}
+		}else if(latX<=uePosition.lng && latY>=uePosition.lat){
+			while(Math.sqrt((uePosition.lng-latX)*(uePosition.lng-latX) + (latY-uePosition.lat) *(latY-uePosition.lat)) < step){
+				latX -= (step/20);
+				latY = coefPathA * latX + coefPathB; 
+			}
+		}else if(latX>=uePosition.lng && latY<=uePosition.lat){
+			while(Math.sqrt((latX-uePosition.lng)*(latX-uePosition.lng) + (uePosition.lat-latY) *(uePosition.lat-latY)) < step){
+				latX += (step/20);
+				latY = coefPathA * latX + coefPathB; 
+			}
+		}else if(latX<=uePosition.lng && latY<=uePosition.lat){
+			while(Math.sqrt((uePosition.lng-latX)*(uePosition.lng-latX) + (uePosition.lat-latY) *(uePosition.lat-latY)) < step){
+				latX -= (step/20);
+				latY = coefPathA * latX + coefPathB; 
+			}
+		}
+		uePosition.lng = latX;
+		uePosition.lat = latY;
+		
+		// ______affine method______no speed control
+		// advance of 1 step along affine curve
+		// if((ueArrival.lng-uePosition.lng)>step)
+		// 	uePosition.lng += step;
+		// else if ((ueArrival.lng-uePosition.lng) < -step)
+		// 	uePosition.lng -= step;
 
-		if((ueArrival.lng-uePosition.lng)>step)
-			uePosition.lng += step;
-		else if ((ueArrival.lng-uePosition.lng) < -step)
-			uePosition.lng -= step;
-
-		uePosition.lat = coefPathA * uePosition.lng + coefPathB;
+		// uePosition.lat = coefPathA * uePosition.lng + coefPathB;
 
 		if( ((ueArrival.lng-uePosition.lng) < step) && ((ueArrival.lng-uePosition.lng) > -step) &&
 			((ueArrival.lat-uePosition.lat) < step) && ((ueArrival.lat-uePosition.lat) > -step)){
