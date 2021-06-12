@@ -48,10 +48,20 @@ Here, we will use the RSCP (Received Signal Code Power) as our criteria for hand
 
 + The RSCP of another cell is better than the RSCP of the attached cell 10db.
 
+## Implementation in MobileNetworks
+
+Once the inner workings of handover were understood, implementing it in MobileNetworks was not as complex as it might have seemed. I expended on the functions provided by my two co-workers, whom had already implemented UE mouvement and calculation of the power recieved by the UE.
+I started with a way to display the three closest antennas in the interface. For this purpose, I had to **sort** the list of antennas **by the power recieved**, without breaking the rest of the application. This was the bulk of the work, since when this sort was done, all that was left for handover was to compare the powers of the antenna the UE is connected to, to the closest non-connected antenna, and if the thresholds defined in **##When to switch** were met, to **initiate the handover**.
+To make the handover visible on the application, **new interface elements** were added to configure the thresholds, to display the type of handover, and in the case of soft/softer handover, to show the connection to the new antenna being made **before** the old one is broken, as per the specifications.
+
+## Personal Conclusion
+
+Sharing the work between us three enabled us to focus on a **clearly defined part**, without needing for us to rely on each other's work too much, as it is harder to communicate with most of us being off-site. This focus helped us work **efficiently**.
+Aside for how the work was performed, this project helped me get a **clear** and **profound** understanding of certains parts of UMTS, and a **better comprehention** of mobile networks inner workings in general. Working on this project with the rest of my team was, in my opinion, an **important and enjoyable** part of the course.  
 
 ## Sources
-[1. Electronics-notes : UMTS WCDMA Handver: hard, soft, softer, inter-RAT](https://www.electronics-notes.com/articles/connectivity/3g-umts/handover-handoff-hard-soft-softer.php)
-[2. IJSR : Comparison between Soft Handover and Hard Handover in UMTS](https://www.ijsr.net/archive/v4i5/SUB154505.pdf)
-[3. 3g4g.co.uk : Handover principle and concepts](https://www.3g4g.co.uk/Tutorial/ZG/zg_handover.html)
-[4. Precisions from Mohamed Hakim MABED](https://moodle.utbm.fr/mod/forum/discuss.php?d=10830)
-[5. 3GPP TS 23.009 V16.0.0](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=732)
+- [1. Electronics-notes : UMTS WCDMA Handver: hard, soft, softer, inter-RAT](https://www.electronics-notes.com/articles/connectivity/3g-umts/handover-handoff-hard-soft-softer.php)
+- [2. IJSR : Comparison between Soft Handover and Hard Handover in UMTS](https://www.ijsr.net/archive/v4i5/SUB154505.pdf)
+- [3. 3g4g.co.uk : Handover principle and concepts](https://www.3g4g.co.uk/Tutorial/ZG/zg_handover.html)
+- [4. Precisions from Mohamed Hakim MABED](https://moodle.utbm.fr/mod/forum/discuss.php?d=10830)
+- [5. 3GPP TS 23.009 V16.0.0](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=732)
