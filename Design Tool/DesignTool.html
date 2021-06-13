@@ -891,7 +891,6 @@
 				}
 			
 				power[a][ipoint][jpoint] = antennas[a].power + parseInt(document.getElementById('gainUE').value) + parseInt(document.getElementById('inputAntennaGain').value) - Loss;
-				console.log(power[a][ipoint][jpoint]);
 			}
 		}
 		document.getElementById('cartepower').enabled='';
@@ -1143,19 +1142,31 @@
 		antennas.sort(function(a,b){return a.currentPower - b.currentPower});
 		antennas.reverse();
 		if(antennas.length >= 1){
-			document.getElementById('labelAntenna1Type').innerHTML="Antenna type : " ;
+			if(antennas[0].omni == true){
+				document.getElementById('labelAntenna1Type').innerHTML="Antenna type : omni";
+			}else{
+				document.getElementById('labelAntenna1Type').innerHTML="Antenna type : sectorielle";
+			}
 			document.getElementById('labelAntenna1Freq').innerHTML="Antenna frequency : " + antennas[0].frequency + "MHz";
 			document.getElementById('labelAntenna1Pow').innerHTML="Antenna power : " + antennas[0].power + "dB";
 			document.getElementById('labelAntenna1NodeB').innerHTML="Antenna nodeB : " + antennas[0].nodeB;
 		}
 		if(antennas.length >= 2){
-			document.getElementById('labelAntenna2Type').innerHTML="Antenna type : ";
+			if(antennas[1].omni == true){
+				document.getElementById('labelAntenna2Type').innerHTML="Antenna type : omni";
+			}else{
+				document.getElementById('labelAntenna2Type').innerHTML="Antenna type : sectorielle";
+			}
 			document.getElementById('labelAntenna2Freq').innerHTML="Antenna frequency : " + antennas[1].frequency + "MHz";
 			document.getElementById('labelAntenna2Pow').innerHTML="Antenna power : " + antennas[1].power + "dB";
 			document.getElementById('labelAntenna2NodeB').innerHTML="Antenna nodeB : " + antennas[1].nodeB;
 		}
 		if(antennas.length >= 3){
-			document.getElementById('labelAntenna3Type').innerHTML="Antenna type : ";
+			if(antennas[2].omni == true){
+				document.getElementById('labelAntenna3Type').innerHTML="Antenna type : omni";
+			}else{
+				document.getElementById('labelAntenna3Type').innerHTML="Antenna type : sectorielle";
+			}
 			document.getElementById('labelAntenna3Freq').innerHTML="Antenna frequency : " + antennas[2].frequency + "MHz";
 			document.getElementById('labelAntenna3Pow').innerHTML="Antenna power : " + antennas[2].power + "dB";
 			document.getElementById('labelAntenna3NodeB').innerHTML="Antenna nodeB : " + antennas[2].nodeB;
@@ -1182,8 +1193,8 @@
 						document.getElementById('labelHandover').innerHTML="Last Handover : " + "Soft Handover";
 					}
 					selectedAntennaCircle2 = L.circle([selectedAntenna.location.lat, selectedAntenna.location.lng], {
-						color: 'green', // the chosen antenna will be green on the map
-						fillColor: '#f03',
+						color: 'brown', // the chosen antenna will be brown on the map
+						fillColor: '#582900',
 						fillOpacity: 0.5,
 						radius: 10
 					}).addTo(mymap);
@@ -1443,7 +1454,7 @@
 		  <br><br>
 		  <div><label id="handoverSettings">Paramètres du handover : </label></div>
 		  <div><label id="LabelRSCPAntenna" style="width: 30%;">RSCP Antenne la plus proche : </label><input type="number" id="RSCPAntenna" name="RSCPAntenna" value="-12" style="width: 20%;"></div>
-		  <div><label id="LabelRSCPLow" style="width: 30%;">RSCP minimum antenne : </label><input type="number" id="RSCPLow" name="RSCPLow" value="-100" style="width: 20%;"></div>
+		  <div><label id="LabelRSCPLow" style="width: 30%;">RSCP minimum antenne (DBm) : </label><input type="number" id="RSCPLow" name="RSCPLow" value="-100" style="width: 20%;"></div>
 		  <div><label id="LabelRSCPDiff" style="width: 30%;">RSCP différence : </label><input type="number" id="RSCPDiff" name="RSCPDiff" value="10" style="width: 20%;"></div>
 		  <br><br>
 		  <div> <input type="button" id="cartepower" value="Cartographie de power" onclick="cartepower()" disabled='disabled' style="width: 98%;"/></div>
