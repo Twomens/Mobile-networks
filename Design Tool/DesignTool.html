@@ -1117,7 +1117,7 @@
 		}
 	}
 
-	const deepCopyFunction = (inObject) => {
+	const deepCopyFunction = (inObject) => { //Deeply copies objects, used in handover process
 		let outObject, value, key
 
 		if (typeof inObject !== "object" || inObject === null) {
@@ -1137,10 +1137,10 @@
 		return outObject
 	}
 
-	function set3ClosestAntennas(uePosition){
-		var save = [...antennas];
-		antennas.sort(function(a,b){return a.currentPower - b.currentPower});
-		antennas.reverse();
+	function set3ClosestAntennas(uePosition){ 	//Prints the 3 closest antennas to the UE, also start most of the handover procedures for reasons
+		var save = [...antennas];		//Saves the antennas to restore them later
+		antennas.sort(function(a,b){return a.currentPower - b.currentPower});	//Sorts the antennas by their received power from the UE
+		antennas.reverse();							//Reverses the sort as it's backwards by default
 		if(antennas.length >= 1){
 			if(antennas[0].omni == true){
 				document.getElementById('labelAntenna1Type').innerHTML="Antenna type : omni";
@@ -1171,35 +1171,34 @@
 			document.getElementById('labelAntenna3Pow').innerHTML="Antenna power : " + antennas[2].power + "dB";
 			document.getElementById('labelAntenna3NodeB').innerHTML="Antenna nodeB : " + antennas[2].nodeB;
 		}
-		console.log("antennas.length : " + antennas.length); 
 	
-		handover();
-		antennas = [...save];
+		handover();				//Start handover procedure
+		antennas = [...save];			//Restore antennas as they were before the sort, to not mess with the rest of the code
 	}
 
-	function handover(){
-		if(first==0){displaySelectedAntenna(0);first=1;return;}
-		var RSCPAntenna = document.getElementById('RSCPAntenna').value;
+	function handover(){		//Detects if handover is needed, and starts it if so
+		if(first==0){displaySelectedAntenna(0);first=1;return;}		//First time no handover, just connect to closest antenna
+		var RSCPAntenna = document.getElementById('RSCPAntenna').value;	//Get values from application
 		var RSCPLow = document.getElementById('RSCPLow').value;
 		var RSCPDiff = document.getElementById('RSCPDiff').value;
-		if(((selectedAntenna.power < RSCPLow) && (antennas[0].power > selectedAntenna.power)) || ( ( antennas[0].power - selectedAntenna.power ) > RSCPDiff ) || ( antennas[0].power > RSCPAntenna ) ){
-			if(selectedAntenna.location.lat != antennas[0].location.lat && selectedAntenna.location.lng != antennas[0].location.lng){
-				first=2;
-				if(selectedAntenna.frequency == antennas[0].frequency){
-					if(selectedAntenna.nodeB == antennas[0].nodeB){
+		if(((selectedAntenna.power < RSCPLow) && (antennas[0].power > selectedAntenna.power)) || ( ( antennas[0].power - selectedAntenna.power ) > RSCPDiff ) || ( antennas[0].power > RSCPAntenna ) ){  //Handover criteriae
+			if(selectedAntenna.location.lat != antennas[0].location.lat && selectedAntenna.location.lng != antennas[0].location.lng){	//Check we're not trying to handover with same antenna
+				first=2;	//Workaround for first disconnect
+				if(selectedAntenna.frequency == antennas[0].frequency){	//Soft handover
+					if(selectedAntenna.nodeB == antennas[0].nodeB){	//Softer handover
 						document.getElementById('labelHandover').innerHTML="Last Handover : " + "Softer Handover";
 					}
 					else{
 						document.getElementById('labelHandover').innerHTML="Last Handover : " + "Soft Handover";
 					}
-					selectedAntennaCircle2 = L.circle([selectedAntenna.location.lat, selectedAntenna.location.lng], {
+					selectedAntennaCircle2 = L.circle([selectedAntenna.location.lat, selectedAntenna.location.lng], { //Change color of old antenna
 						color: 'brown', // the chosen antenna will be brown on the map
 						fillColor: '#582900',
 						fillOpacity: 0.5,
 						radius: 10
 					}).addTo(mymap);
 				}
-				else{
+				else{							//Hard handover
 					document.getElementById('labelHandover').innerHTML="Last Handover : " + "Hard Handover";
 				}
 				displaySelectedAntenna(0);
@@ -1209,8 +1208,8 @@
 	}
 
 	function disconnectOldAntenna(){
-		if(first!=2){return;}
-		if(softOver==3){
+		if(first!=2){return;}		//Skip first time
+		if(softOver==6){		//Arbitrary time based on speed of execution
 			mymap.removeLayer(selectedAntennaCircle2);
 			softOver=0;
 		}
@@ -1228,7 +1227,7 @@
 					radius: 10
 					}).addTo(mymap);
 		}
-		selectedAntenna = deepCopyFunction(antennas[selectedAntennaIndex]);
+		selectedAntenna = deepCopyFunction(antennas[selectedAntennaIndex]);	//Copies the selected antenna to find it easily next loop
 
 	}
 
