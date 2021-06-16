@@ -194,6 +194,8 @@
 	var toggle = 0; // correspond to the running state of the simu (0 = not running 1 = running)
 	var intervalID; // waitong time before sleeping between two ticks
 	var coefPathA, coefPathB // path coefficient for the UE to go to one point to another
+	var step = 0.00005, initStepSize = 0.00005; // initial step length
+	var loopDuration = 100; // in ms
 
 	//action after the selection of the south-east corner of the covering area
 	function placeCorner(location) {
@@ -1231,6 +1233,15 @@
 
 	}
 
+	function disconnectUE(){
+		if(selectedAntennaCircle != undefined)
+			mymap.removeLayer(selectedAntennaCircle);
+		// add the initialisation connection process instead of connection process to be pertinent
+		setUEAntenna(uePosition); // in addition it will challenge the handover strategy
+		displaySelectedAntenna(0);
+
+	}
+
 	function setUEAntenna(location){
 		// First selection of antenna
 		if(antennas.length < 1) return;
@@ -1317,7 +1328,7 @@
 			console.log("Start");
 			toggle = 1;
 			// coefPath = (ueArrival.lat - ueStart.lat) / (ueArrival.lng - ueStart.lng); // coef of the affine func (representing the UE path)
-			intervalID = setInterval(function(){loop();}, 200);
+			intervalID = setInterval(function(){loop();}, loopDuration);
 		}else if(toggle == 1){
 			console.log("Stop");
 			toggle = 0;
@@ -1326,9 +1337,6 @@
 	}
 
 	function loop(){
-		//one of the parameters that influence speed 
-		var step = 0.0005;
-
 		// ______legit mathematic method______speed is perfectly constant
 
 		// var aSecDeg = coefPathA * coefPathA + 1; 
@@ -1415,6 +1423,9 @@
 	  } while (currentDate - date < milliseconds);
 	}
 
+	function speedMultiple(multiple){
+		step = initStepSize * multiple;
+	}
 	</script>
 </head>
   <body>
@@ -1487,26 +1498,26 @@
 			 	<div> <label id="labelReceivedPower" style="width: 30%;">Received power : </label><input type="number" id="receivedPower" name="receivedPower" value="0" style="width: 30%;" disabled=""></div>
 			 	<div> <label id="labelGainUE" style="width: 30%;">UE Gain(dBm) : </label><input type="number" id="gainUE" name="gainUE" value="15" style="width: 30%;"></div>
 			 	<div> <label id="labelHandover" style="width: 30%;">Last Handover : </label></div>
-		 		<div><br><label id="antenna1">Antenna 1 : <br></label></div>
-			 	<div> <label id="labelAntenna1Type" style="width: 30%;">Antenna type : </label></div>
-			 	<div> <label id="labelAntenna1Freq" style="width: 30%;">Antenna frequency : </label></div>
-			 	<div> <label id="labelAntenna1Pow" style="width: 30%;">Antenna power : </label></div>
-			 	<div> <label id="labelAntenna1NodeB" style="width: 30%;">Antenna nodeB : </label></div>
-
-		 		<div><br><label id="antenna2">Antenna 2 : <br></label></div>
-			 	<div> <label id="labelAntenna2Type" style="width: 30%;">Antenna type : </label></div>
-			 	<div> <label id="labelAntenna2Freq" style="width: 30%;">Antenna frequency : </label></div>
-			 	<div> <label id="labelAntenna2Pow" style="width: 30%;">Antenna power : </label></div>
-			 	<div> <label id="labelAntenna2NodeB" style="width: 30%;">Antenna nodeB : </label></div>
-
-		 		<div><br><label id="antenna3">Antenna 3 : <br></label></div>
-			 	<div> <label id="labelAntenna3Type" style="width: 30%;">Antenna type : </label></div>
-			 	<div> <label id="labelAntenna3Freq" style="width: 30%;">Antenna frequency : </label></div>
-			 	<div> <label id="labelAntenna3Pow" style="width: 30%;">Antenna power : </label></div>
-			 	<div> <label id="labelAntenna3NodeB" style="width: 30%;">Antenna nodeB : </label></div>
-			 	
-		 	</div>
-			
+		 		<div><br><label id="antenna1">Antennas : <br></label></div>
+			 	<div> <label id="labelAntenna1Type" style="width: 30%;">Antenna 1 type : </label></div>
+			 	<div> <label id="labelAntenna1Freq" style="width: 30%;">Antenna 1 frequency : </label></div>
+			 	<div> <label id="labelAntenna1Pow" style="width: 30%;">Antenna 1 power : </label></div>
+			 	<div> <label id="labelAntenna1NodeB" style="width: 30%;">Antenna 1 nodeB : </label></div>
+			 	<div> <label id="labelAntenna2Type" style="width: 30%;">Antenna 2 type : </label></div>
+			 	<div> <label id="labelAntenna2Freq" style="width: 30%;">Antenna 2 frequency : </label></div>
+			 	<div> <label id="labelAntenna2Pow" style="width: 30%;">Antenna 2 power : </label></div>
+			 	<div> <label id="labelAntenna2NodeB" style="width: 30%;">Antenna 2 nodeB : </label></div>
+			 	<div> <label id="labelAntenna3Type" style="width: 30%;">Antenna 3 type : </label></div>
+			 	<div> <label id="labelAntenna3Freq" style="width: 30%;">Antenna 3 frequency : </label></div>
+			 	<div> <label id="labelAntenna3Pow" style="width: 30%;">Antenna 3 power : </label></div>
+			 	<div> <label id="labelAntenna3NodeB" style="width: 30%;">Antenna 3 nodeB : </label></div>
+			 	<br>
+			  	<button type="button" id="x1" value="1" onclick="speedMultiple(this.value)">x1</button>
+			  	<button type="button" id="x2" value="2" onclick="speedMultiple(this.value)">x2</button>
+			  	<button type="button" id="x5" value="5" onclick="speedMultiple(this.value)">x5</button>
+			  	<br>
+			  	<button type="button" id="discoUE" value="" onclick="disconnectUE()">Disconnect UE</button>
+			 </div>
 		</div>
 		<div id="contenu">
 			
